@@ -1,4 +1,5 @@
 import knex from 'knex';
+import { Email, EmailStatus } from '../types/agents';
 
 const db = knex({
   client: 'sqlite3',
@@ -8,20 +9,22 @@ const db = knex({
   useNullAsDefault: true
 });
 
-export interface Email {
-  id?: number;
+export interface EmailInput {
   to: string;
   cc?: string;
   bcc?: string;
   subject: string;
   body: string;
-  created_at?: Date;
-  updated_at?: Date;
+  status?: EmailStatus;
 }
 
 export class DB {
-  static async createEmail(email: Omit<Email, 'id' | 'created_at' | 'updated_at'>): Promise<number[]> {
-    return db('emails').insert(email);
+  static async createEmail(email: EmailInput): Promise<number[]> {
+    const emailWithDefaults = {
+      status: 'draft',
+      ...email
+    };
+    return db('emails').insert(emailWithDefaults);
   }
 
   static async getEmailById(id: number): Promise<Email | null> {
@@ -37,13 +40,18 @@ export class DB {
       .offset(offset);
   }
 
-  static async updateEmail(id: number, updates: Partial<Email>): Promise<boolean> {
+  static async updateEmail(id: number, updates: Partial<EmailInput>): Promise<boolean> {
     const count = await db('emails').where('id', id).update(updates);
     return count > 0;
   }
 
   static async deleteEmail(id: number): Promise<boolean> {
     const count = await db('emails').where('id', id).del();
+    return count > 0;
+  }
+
+  static async updateEmailStatus(id: number, status: EmailStatus): Promise<boolean> {
+    const count = await db('emails').where('id', id).update({ status });
     return count > 0;
   }
 }

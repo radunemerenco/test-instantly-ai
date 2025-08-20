@@ -7,9 +7,21 @@
       "Bash(git commit:*)",
       "Bash(yarn add:*)",
       "Bash(rm:*)",
-      "Bash(yarn build)"
+      "Bash(yarn build)",
+      "Bash(yarn dev)",
+      "Bash(yarn dev:*)",
+      "Bash(curl:*)",
+      "Bash(yarn migrate)",
+      "Bash(yarn remove:*)",
+      "Bash(npm run dev:*)",
+      "Bash(lsof:*)",
+      "Bash(npx knex migrate:make:*)",
+      "Bash(npx knex migrate:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "/var/folders/b2/vlhz2cs53tdbpqbb0g2h8qch0000gn/T"
+    ]
   }
 }

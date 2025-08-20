@@ -7,10 +7,10 @@ const fastify: FastifyInstance = Fastify({
   logger: true
 });
 
-// Register CORS
+// Register CORS - Allow all origins and methods for development
 fastify.register(cors, {
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  origin: true, // Allow all origins
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 });

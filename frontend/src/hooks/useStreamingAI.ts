@@ -25,32 +25,10 @@ export function useStreamingAI({
     setCurrentBody('');
 
     try {
-      // Close any existing connection
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-      }
-
-      // Create the request first
-      const response = await fetch('http://localhost:3001/api/emails/generate-stream', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to start generation');
-      }
-
-      // Now listen for server-sent events
-      const eventSource = new EventSource('http://localhost:3001/api/emails/generate-stream');
-      eventSourceRef.current = eventSource;
-
-      eventSource.onmessage = (event) => {
-        try {
-          const data: AIStreamResponse = JSON.parse(event.data);
-          
+      // Use the emailApi streaming connection
+      await (await import('../utils/api')).emailApi.createStreamingConnection(
+        request,
+        (data: AIStreamResponse) => {
           switch (data.type) {
             case 'classification':
               // Optional: show classification result
@@ -69,29 +47,17 @@ export function useStreamingAI({
                 onBodyUpdate?.(data.content);
               }
               break;
-              
-            case 'complete':
-              setIsGenerating(false);
-              onComplete?.();
-              eventSource.close();
-              break;
-              
-            case 'error':
-              throw new Error(data.error || 'Generation failed');
           }
-        } catch (parseError) {
-          setError('Failed to parse server response');
+        },
+        () => {
           setIsGenerating(false);
-          eventSource.close();
+          onComplete?.();
+        },
+        (error: string) => {
+          setError(error);
+          setIsGenerating(false);
         }
-      };
-
-      eventSource.onerror = () => {
-        setError('Connection lost');
-        setIsGenerating(false);
-        eventSource.close();
-      };
-
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Generation failed');
       setIsGenerating(false);

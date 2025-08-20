@@ -1,3 +1,5 @@
+export type EmailStatus = 'draft' | 'sent';
+
 export interface Email {
   id: number;
   to: string;
@@ -5,6 +7,7 @@ export interface Email {
   bcc?: string;
   subject: string;
   body: string;
+  status?: EmailStatus;
   created_at?: string;
   updated_at?: string;
 }
@@ -19,6 +22,7 @@ export interface EmailFormData {
 
 export interface AIGenerationRequest {
   prompt: string;
+  emailId?: number; // Optional: for updating existing drafts
   context?: {
     recipient?: string;
     senderName?: string;

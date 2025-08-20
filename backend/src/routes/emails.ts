@@ -3,8 +3,8 @@ import { classifyPrompt } from '../agents/router';
 import { generateSalesEmail } from '../agents/sales';
 import { generateFollowupEmail } from '../agents/followup';
 import { StreamingHandler, delay } from '../utils/streaming';
-import { AgentRequest } from '../types/agents';
-import { DB } from '../db';
+import { AgentRequest, EmailStatus } from '../types/agents';
+import { DB, EmailInput } from '../db';
 
 export default async function emailRoutes(fastify: FastifyInstance, options: any) {
   // Streaming email generation endpoint
@@ -12,7 +12,7 @@ export default async function emailRoutes(fastify: FastifyInstance, options: any
     const stream = new StreamingHandler(reply);
     
     try {
-      const { prompt, context } = request.body as AgentRequest;
+      const { prompt, emailId, context } = request.body as AgentRequest;
       
       if (!prompt) {
         stream.error('Prompt is required');
@@ -47,12 +47,23 @@ export default async function emailRoutes(fastify: FastifyInstance, options: any
         await delay(100); // Simulate typing
       }
       
-      // Step 5: Save to database
-      await DB.createEmail({
-        to: context?.recipient || '',
-        subject: emailContent.subject,
-        body: emailContent.body
-      });
+      // Step 5: Save to database (create new or update existing)
+      if (emailId) {
+        // Update existing email
+        await DB.updateEmail(emailId, {
+          subject: emailContent.subject,
+          body: emailContent.body,
+          status: 'draft'
+        });
+      } else {
+        // Create new email as draft
+        await DB.createEmail({
+          to: context?.recipient || '',
+          subject: emailContent.subject,
+          body: emailContent.body,
+          status: 'draft'
+        });
+      }
       
       stream.end();
       
@@ -86,6 +97,69 @@ export default async function emailRoutes(fastify: FastifyInstance, options: any
       return { email };
     } catch (error) {
       reply.status(500).send({ error: 'Failed to fetch email' });
+    }
+  });
+
+  // Create email (save as draft)
+  fastify.post('/emails', async (request, reply) => {
+    try {
+      const emailData = request.body as EmailInput;
+      
+      if (!emailData.to || !emailData.subject) {
+        reply.status(400).send({ error: 'To and subject are required' });
+        return;
+      }
+
+      const [emailId] = await DB.createEmail({
+        ...emailData,
+        status: 'draft'
+      });
+      
+      return { id: emailId, status: 'draft' };
+    } catch (error) {
+      reply.status(500).send({ error: 'Failed to create email' });
+    }
+  });
+
+  // Update email status (send email)
+  fastify.patch('/emails/:id/status', async (request, reply) => {
+    try {
+      const { id } = request.params as { id: string };
+      const { status } = request.body as { status: EmailStatus };
+      
+      if (!status || !['draft', 'sent'].includes(status)) {
+        reply.status(400).send({ error: 'Valid status is required (draft or sent)' });
+        return;
+      }
+
+      const success = await DB.updateEmailStatus(parseInt(id), status);
+      
+      if (!success) {
+        reply.status(404).send({ error: 'Email not found' });
+        return;
+      }
+      
+      return { success: true, status };
+    } catch (error) {
+      reply.status(500).send({ error: 'Failed to update email status' });
+    }
+  });
+
+  // Delete email
+  fastify.delete('/emails/:id', async (request, reply) => {
+    try {
+      const { id } = request.params as { id: string };
+      
+      const success = await DB.deleteEmail(parseInt(id));
+      
+      if (!success) {
+        reply.status(404).send({ error: 'Email not found' });
+        return;
+      }
+      
+      return { success: true };
+    } catch (error) {
+      reply.status(500).send({ error: 'Failed to delete email' });
     }
   });
 }

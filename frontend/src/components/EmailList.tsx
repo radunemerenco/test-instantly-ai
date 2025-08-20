@@ -8,17 +8,21 @@ import {
   Typography,
   Box,
   Divider,
+  Button,
+  Chip,
 } from '@mui/material';
+import { Add, Drafts, Send } from '@mui/icons-material';
 import { Email } from '../types/email';
 
 interface EmailListProps {
   emails: Email[];
   selectedId?: number;
   onSelect: (id: number) => void;
+  onNewEmail?: () => void;
   loading?: boolean;
 }
 
-export default function EmailList({ emails, selectedId, onSelect, loading }: EmailListProps) {
+export default function EmailList({ emails, selectedId, onSelect, onNewEmail, loading }: EmailListProps) {
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Just now';
     const date = new Date(dateString);
@@ -62,10 +66,21 @@ export default function EmailList({ emails, selectedId, onSelect, loading }: Ema
 
   return (
     <Paper sx={{ height: '100%', overflow: 'auto' }}>
-      <Box sx={{ p: 2, pb: 1 }}>
+      <Box sx={{ p: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h6">
           Email List ({emails.length})
         </Typography>
+        {onNewEmail && (
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<Add />}
+            onClick={onNewEmail}
+            sx={{ minWidth: 'auto' }}
+          >
+            New
+          </Button>
+        )}
       </Box>
       <Divider />
       <List sx={{ p: 0 }}>
@@ -86,9 +101,19 @@ export default function EmailList({ emails, selectedId, onSelect, loading }: Ema
               >
                 <ListItemText
                   primary={
-                    <Typography variant="subtitle2" noWrap>
-                      {email.subject || 'No Subject'}
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="subtitle2" noWrap sx={{ flex: 1 }}>
+                        {email.subject || 'No Subject'}
+                      </Typography>
+                      <Chip
+                        size="small"
+                        icon={email.status === 'sent' ? <Send sx={{ fontSize: 12 }} /> : <Drafts sx={{ fontSize: 12 }} />}
+                        label={email.status === 'sent' ? 'Sent' : 'Draft'}
+                        color={email.status === 'sent' ? 'success' : 'warning'}
+                        variant="outlined"
+                        sx={{ height: 20, fontSize: '0.65rem' }}
+                      />
+                    </Box>
                   }
                   secondary={
                     <Box>

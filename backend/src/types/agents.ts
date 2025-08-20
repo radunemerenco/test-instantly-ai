@@ -2,6 +2,7 @@ export type AgentType = 'sales' | 'followup';
 
 export interface AgentRequest {
   prompt: string;
+  emailId?: number; // Optional: for updating existing drafts
   context?: {
     recipient?: string;
     senderName?: string;
@@ -25,4 +26,18 @@ export interface EmailContent {
 export interface StreamingResponse {
   write: (data: string) => void;
   end: () => void;
+}
+
+export type EmailStatus = 'draft' | 'sent';
+
+export interface Email {
+  id: number;
+  to: string;
+  cc?: string | null;
+  bcc?: string | null;
+  subject: string;
+  body: string;
+  status?: EmailStatus;
+  created_at: string;
+  updated_at: string;
 }
