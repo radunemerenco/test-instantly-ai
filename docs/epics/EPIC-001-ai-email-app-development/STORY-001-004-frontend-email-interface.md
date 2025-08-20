@@ -4,10 +4,10 @@
 - **Story ID**: STORY-001-004
 - **Epic**: [EPIC-001: AI-Powered Email App Development](README.md)
 - **Title**: Frontend Email Interface
-- **Status**: Not Started
+- **Status**: In Progress
 - **Priority**: High
 - **Estimate**: 3 Story Points
-- **Assignee**: TBD
+- **Assignee**: Claude Code
 - **Sprint**: Interview Assignment Sprint
 
 ## Description

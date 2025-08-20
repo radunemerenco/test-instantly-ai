@@ -29,8 +29,8 @@ Develop a fully functional AI-powered email composition and management applicati
 ### Story Status Summary
 | Status | Count | Stories |
 |--------|-------|---------|
-| Not Started | 2 | STORY-001-004, STORY-001-005 |
-| In Progress | 0 | - |
+| Not Started | 1 | STORY-001-005 |
+| In Progress | 1 | STORY-001-004 |
 | In Review | 0 | - |
 | Done | 3 | STORY-001-001, STORY-001-002, STORY-001-003 |
 | **Total** | **5** | - |
