@@ -4,10 +4,10 @@
 - **Story ID**: STORY-001-002
 - **Epic**: [EPIC-001: AI-Powered Email App Development](README.md)
 - **Title**: Backend AI Agent System
-- **Status**: Not Started
+- **Status**: In Progress
 - **Priority**: High
 - **Estimate**: 4 Story Points
-- **Assignee**: TBD
+- **Assignee**: Claude Code
 - **Sprint**: Interview Assignment Sprint
 
 ## Description
