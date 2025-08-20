@@ -1,5 +1,8 @@
-import { ChatOpenAI } from '@langchain/openai';
-const openai = new ChatOpenAI({
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.classifyPrompt = classifyPrompt;
+const openai_1 = require("@langchain/openai");
+const openai = new openai_1.ChatOpenAI({
     modelName: 'gpt-3.5-turbo',
     temperature: 0.1,
     maxTokens: 50,
@@ -15,7 +18,7 @@ Examples:
 "Follow up on last week's discussion" → followup
 "Product demo invitation" → sales
 "Checking in on proposal status" → followup`;
-export async function classifyPrompt(prompt) {
+async function classifyPrompt(prompt) {
     try {
         const response = await openai.invoke([
             { role: 'system', content: ROUTER_SYSTEM_PROMPT },

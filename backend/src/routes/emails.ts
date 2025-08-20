@@ -7,15 +7,6 @@ import { AgentRequest } from '../types/agents';
 import { DB } from '../db';
 
 export default async function emailRoutes(fastify: FastifyInstance, options: any) {
-  // CORS preflight
-  fastify.options('/emails/generate-stream', async (request, reply) => {
-    return reply
-      .header('Access-Control-Allow-Origin', '*')
-      .header('Access-Control-Allow-Methods', 'POST, OPTIONS')
-      .header('Access-Control-Allow-Headers', 'Content-Type')
-      .send();
-  });
-
   // Streaming email generation endpoint
   fastify.post('/emails/generate-stream', async (request, reply) => {
     const stream = new StreamingHandler(reply);

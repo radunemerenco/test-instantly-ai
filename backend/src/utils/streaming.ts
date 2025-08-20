@@ -16,8 +16,9 @@ export class StreamingHandler {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Cache-Control'
+      'Access-Control-Allow-Origin': 'http://localhost:3000',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Allow-Headers': 'Cache-Control, Content-Type'
     });
     
     this.isStarted = true;

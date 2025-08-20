@@ -1,5 +1,8 @@
-import { ChatOpenAI } from '@langchain/openai';
-const openai = new ChatOpenAI({
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.generateFollowupEmail = generateFollowupEmail;
+const openai_1 = require("@langchain/openai");
+const openai = new openai_1.ChatOpenAI({
     modelName: 'gpt-3.5-turbo',
     temperature: 0.6,
     maxTokens: 200,
@@ -15,7 +18,7 @@ Format your response as JSON:
 }
 
 Keep the tone warm but professional. Show value and consideration for their time.`;
-export async function generateFollowupEmail(request) {
+async function generateFollowupEmail(request) {
     try {
         const contextInfo = request.context?.recipient ?
             `Recipient: ${request.context.recipient}` : '';

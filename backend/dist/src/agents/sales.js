@@ -1,5 +1,8 @@
-import { ChatOpenAI } from '@langchain/openai';
-const openai = new ChatOpenAI({
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.generateSalesEmail = generateSalesEmail;
+const openai_1 = require("@langchain/openai");
+const openai = new openai_1.ChatOpenAI({
     modelName: 'gpt-3.5-turbo',
     temperature: 0.7,
     maxTokens: 150,
@@ -15,7 +18,7 @@ Format your response as JSON:
 }
 
 Keep sentences short and punchy. Focus on value proposition and next steps.`;
-export async function generateSalesEmail(request) {
+async function generateSalesEmail(request) {
     try {
         const contextInfo = request.context?.recipient ?
             `Recipient: ${request.context.recipient}` : '';

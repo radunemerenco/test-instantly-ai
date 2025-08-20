@@ -1,12 +1,18 @@
-import knex from 'knex';
-const db = knex({
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DB = void 0;
+const knex_1 = __importDefault(require("knex"));
+const db = (0, knex_1.default)({
     client: 'sqlite3',
     connection: {
         filename: './dev.sqlite3',
     },
     useNullAsDefault: true
 });
-export class DB {
+class DB {
     static async createEmail(email) {
         return db('emails').insert(email);
     }
@@ -30,5 +36,6 @@ export class DB {
         return count > 0;
     }
 }
-export default DB;
+exports.DB = DB;
+exports.default = DB;
 //# sourceMappingURL=index.js.map
