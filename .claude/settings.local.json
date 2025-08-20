@@ -16,7 +16,9 @@
       "Bash(npm run dev:*)",
       "Bash(lsof:*)",
       "Bash(npx knex migrate:make:*)",
-      "Bash(npx knex migrate:*)"
+      "Bash(npx knex migrate:*)",
+      "Bash(grep:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": [],

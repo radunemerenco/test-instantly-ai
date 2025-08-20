@@ -1,8 +1,8 @@
 import { FastifyInstance } from 'fastify';
 import { classifyPrompt } from '../agents/router';
-import { generateSalesEmail } from '../agents/sales';
-import { generateFollowupEmail } from '../agents/followup';
-import { StreamingHandler, delay } from '../utils/streaming';
+import { generateSalesEmailStream } from '../agents/sales';
+import { generateFollowupEmailStream } from '../agents/followup';
+import { StreamingHandler } from '../utils/streaming';
 import { AgentRequest, EmailStatus } from '../types/agents';
 import { DB, EmailInput } from '../db';
 
@@ -21,46 +21,54 @@ export default async function emailRoutes(fastify: FastifyInstance, options: any
 
       // Step 1: Classify the prompt
       stream.write({ type: 'classification', content: 'Analyzing your request...' });
-      await delay(500); // Simulate processing time
       
       const agentType = await classifyPrompt(prompt);
       stream.write({ type: 'classification', content: `Classified as: ${agentType}`, agentType });
       
-      await delay(300);
+      // Step 2: Generate email with real OpenAI streaming
+      const streamGenerator = agentType === 'sales' 
+        ? generateSalesEmailStream({ prompt, context })
+        : generateFollowupEmailStream({ prompt, context });
       
-      // Step 2: Generate email content
-      const emailContent = agentType === 'sales' 
-        ? await generateSalesEmail({ prompt, context })
-        : await generateFollowupEmail({ prompt, context });
+      let subject = '';
+      let body = '';
+      let currentSection = 'subject';
       
-      // Step 3: Stream subject
-      stream.write({ type: 'subject', content: emailContent.subject });
-      await delay(400);
-      
-      // Step 4: Stream body (simulate typing effect)
-      const bodyWords = emailContent.body.split(' ');
-      let currentBody = '';
-      
-      for (const word of bodyWords) {
-        currentBody += (currentBody ? ' ' : '') + word;
-        stream.write({ type: 'body', content: currentBody });
-        await delay(100); // Simulate typing
+      // Stream the OpenAI response in real-time
+      for await (const chunk of streamGenerator) {
+        if (chunk.type === 'subject') {
+          subject = chunk.content;
+          stream.write({ type: 'subject', content: subject });
+          currentSection = 'body';
+        } else if (chunk.type === 'body') {
+          body = chunk.content;
+          stream.write({ type: 'body', content: body });
+        } else if (chunk.type === 'token') {
+          // Accumulate tokens for the current section
+          if (currentSection === 'subject') {
+            subject += chunk.content;
+            stream.write({ type: 'subject', content: subject });
+          } else {
+            body += chunk.content;
+            stream.write({ type: 'body', content: body });
+          }
+        }
       }
       
-      // Step 5: Save to database (create new or update existing)
+      // Step 3: Save to database (create new or update existing)
       if (emailId) {
         // Update existing email
         await DB.updateEmail(emailId, {
-          subject: emailContent.subject,
-          body: emailContent.body,
+          subject: subject,
+          body: body,
           status: 'draft'
         });
       } else {
         // Create new email as draft
         await DB.createEmail({
           to: context?.recipient || '',
-          subject: emailContent.subject,
-          body: emailContent.body,
+          subject: subject,
+          body: body,
           status: 'draft'
         });
       }
