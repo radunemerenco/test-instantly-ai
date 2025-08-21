@@ -92,8 +92,12 @@ export default function Home() {
     onBodyUpdate: (body) => {
       setFormData(prev => ({ ...prev, body }));
     },
-    onComplete: () => {
-      console.log('AI generation complete');
+    onComplete: (emailId?: number) => {
+      console.log('AI generation complete', emailId ? `for email ${emailId}` : '');
+      // Auto-select the newly created email if one was created
+      if (emailId && !selectedEmail) {
+        setSelectedEmailId(emailId);
+      }
       // Refresh emails list after generation
       loadEmails();
     }
@@ -144,7 +148,9 @@ export default function Home() {
         await emailApi.updateEmailStatus(selectedEmail.id, 'draft');
       } else {
         // Create new email as draft
-        await emailApi.createEmail(emailData);
+        const result = await emailApi.createEmail(emailData);
+        // Auto-select the newly created email
+        setSelectedEmailId(result.id);
       }
       await loadEmails();
     } catch (error) {
@@ -161,6 +167,8 @@ export default function Home() {
         // Create new email and mark as sent
         const result = await emailApi.createEmail(emailData);
         await emailApi.updateEmailStatus(result.id, 'sent');
+        // Auto-select the newly created email
+        setSelectedEmailId(result.id);
       }
       await loadEmails();
     } catch (error) {

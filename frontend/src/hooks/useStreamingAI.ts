@@ -4,7 +4,7 @@ import { AIGenerationRequest, AIStreamResponse, EmailFormData } from '../types/e
 interface UseStreamingAIProps {
   onSubjectUpdate?: (subject: string) => void;
   onBodyUpdate?: (body: string) => void;
-  onComplete?: () => void;
+  onComplete?: (emailId?: number) => void;
 }
 
 export function useStreamingAI({
@@ -23,6 +23,7 @@ export function useStreamingAI({
     setError(null);
     setCurrentSubject('');
     setCurrentBody('');
+    let finalEmailId: number | undefined;
 
     try {
       // Use the emailApi streaming connection
@@ -35,23 +36,29 @@ export function useStreamingAI({
               break;
               
             case 'subject':
-              if (data.content) {
+              if (data.content && typeof data.content === 'string') {
                 setCurrentSubject(data.content);
                 onSubjectUpdate?.(data.content);
               }
               break;
               
             case 'body':
-              if (data.content) {
+              if (data.content && typeof data.content === 'string') {
                 setCurrentBody(data.content);
                 onBodyUpdate?.(data.content);
+              }
+              break;
+              
+            case 'emailId':
+              if (data.content && typeof data.content === 'number') {
+                finalEmailId = data.content;
               }
               break;
           }
         },
         () => {
           setIsGenerating(false);
-          onComplete?.();
+          onComplete?.(finalEmailId);
         },
         (error: string) => {
           setError(error);

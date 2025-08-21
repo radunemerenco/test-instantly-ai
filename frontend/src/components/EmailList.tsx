@@ -94,8 +94,19 @@ export default function EmailList({ emails, selectedId, onSelect, onNewEmail, lo
                   py: 1.5,
                   px: 2,
                   '&.Mui-selected': {
-                    backgroundColor: 'primary.light',
+                    backgroundColor: 'primary.main',
                     color: 'primary.contrastText',
+                    '& .MuiTypography-root': {
+                      color: 'primary.contrastText',
+                    },
+                    '& .MuiChip-root': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      color: 'primary.contrastText',
+                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                    },
+                  },
+                  '&.Mui-selected:hover': {
+                    backgroundColor: 'primary.dark',
                   },
                 }}
               >

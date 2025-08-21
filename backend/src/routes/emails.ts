@@ -56,6 +56,7 @@ export default async function emailRoutes(fastify: FastifyInstance, options: any
       }
       
       // Step 3: Save to database (create new or update existing)
+      let finalEmailId = emailId;
       if (emailId) {
         // Update existing email
         await DB.updateEmail(emailId, {
@@ -65,14 +66,17 @@ export default async function emailRoutes(fastify: FastifyInstance, options: any
         });
       } else {
         // Create new email as draft
-        await DB.createEmail({
+        const [newEmailId] = await DB.createEmail({
           to: context?.recipient || '',
           subject: subject,
           body: body,
           status: 'draft'
         });
+        finalEmailId = newEmailId;
       }
       
+      // Send the final email ID to the frontend
+      stream.write({ type: 'emailId', content: finalEmailId });
       stream.end();
       
     } catch (error) {

@@ -31,8 +31,8 @@ export interface AIGenerationRequest {
 }
 
 export interface AIStreamResponse {
-  type: 'classification' | 'subject' | 'body' | 'complete' | 'error';
-  content?: string;
+  type: 'classification' | 'subject' | 'body' | 'complete' | 'error' | 'emailId';
+  content?: string | number;
   agentType?: 'sales' | 'followup';
   error?: string;
 }

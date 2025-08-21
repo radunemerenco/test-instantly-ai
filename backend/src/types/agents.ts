@@ -11,8 +11,8 @@ export interface AgentRequest {
 }
 
 export interface AgentResponse {
-  type: 'classification' | 'subject' | 'body' | 'complete' | 'error';
-  content?: string;
+  type: 'classification' | 'subject' | 'body' | 'complete' | 'error' | 'emailId';
+  content?: string | number;
   agentType?: AgentType;
   error?: string;
 }
